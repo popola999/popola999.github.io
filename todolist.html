@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>todos5</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .caption{
+            margin-top: 50px;
+            font-size: 10rem;
+            font-weight: bold;
+            color: rgb(219,199,237);
+        }
+        .container{
+            border:none;
+            box-shadow: 0 0 4px 2px #dfdfdf;
+            width: 100%;
+            max-width: 400px;
+        }
+        .input{
+            width: 100%;
+            border: none;
+            display: block;
+            padding: 1rem 2rem;
+            outline-color: rgb(219,199,237);
+            font-size: 1.5rem;
+        }
+        .input::placeholder{
+            color: #dfdfdf;
+        }
+        .list{
+            margin:0;
+            padding: 0;
+            list-style-type: none;
+        }
+        .list li{
+            background-color: white;
+            border-top: 1px solid #dfdfdf;
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+        }
+        .list li.completed{
+            color: #aaaaaa;
+            text-decoration: line-through;
+            cursor: pointer;
+        }
+        .tips{
+            margin-top: 50px;
+            color: #aaaaaa;
+        }
+    </style>
+
+</head>
+<body>
+
+    <h1 class="caption">todos</h1>
+
+
+    <form class="container">
+        <input class="input" placeholder="Enter your todo"/>
+        <ul class="list"></ul>
+    </form>
+
+
+
+    <small class="tips">鼠标左键单击切换状态<br>右键单击删除</small>
+
+    <script>
+        const form=document.querySelector(".container");
+        const input=document.querySelector(".input");
+        const ul=document.querySelector(".list");
+
+        const list=JSON.parse(localStorage.getItem('todoList5'));
+        if (list){
+            list.forEach(item=>{
+                addTodo(item);
+            })
+        }
+        form.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            addTodo();
+        });
+        function addTodo(todo) {
+            let todoText=input.value;
+            
+            if (todo){
+                todoText=todo.text;
+            }
+            if (todoText){
+                //拿到todo对象开始创建li元素
+                const todoEL=document.createElement('li');
+                //判断todo对象是否是已经完成，只有从localStorage中取出的才需要判断
+                if (todo&&todo.completed){
+                    todoEL.classList.add('completed');
+                }
+                //设置节点内容
+                todoEL.innerHTML=todoText;
+                //为节点添加click监听
+                todoEL.addEventListener('click',()=>{
+                    todoEL.classList.toggle('completed');
+                    updateList();
+                });
+                //为节点添加contextmenu（右键单击）监听
+                todoEL.addEventListener('contextmenu',(e)=>{
+                    e.preventDefault();
+                    todoEL.remove();
+                    updateList();
+                });
+                //将li节点添加到ul中
+                ul.appendChild(todoEL);
+                input.value='';
+                //更新ul
+                updateList();
+            }
+        }
+        function updateList() {
+            //获取全部li节点
+            const list=document.querySelectorAll('li');
+            const todoList=[];
+            list.forEach(item=>{
+                todoList.push({
+                    text:item.innerText,
+                    completed:item.classList.contains('completed')
+                });
+            });
+            //存入本地存储
+            localStorage.setItem('todoList5',JSON.stringify(todoList));
+        }
+
+    </script>
+</body>
+</html>
